@@ -1,0 +1,103 @@
+services:
+  # -----------------------
+  # PostgreSQL
+  # -----------------------
+  postgres:
+    image: postgres:18-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - produktifinData:/var/lib/postgresql/data
+      - ./infra/postgres/init/00_create_dbs.sql:/docker-entrypoint-initdb.d/00_create_dbs.sql
+    ports:
+      - "127.0.0.3:5432:5432"
+    networks:
+      - net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # -----------------------
+  # Auth Service
+  # -----------------------
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    restart: always
+    env_file:
+      - .env
+    environment:
+      SERVICE_PORT: 8001
+      DATABASE_URL: ${AUTH_DB_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - net
+
+  # -----------------------
+  # Pomodoro Service
+  # -----------------------
+  pomodoro-service:
+    build: ./services/pomodoro-service
+    container_name: pomodoro-service
+    restart: always
+    env_file:
+      - .env
+    environment:
+      SERVICE_PORT: 8002
+      DATABASE_URL: ${POMODORO_DB_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - net
+
+  # -----------------------
+  # History Service
+  # -----------------------
+  history-service:
+    build: ./services/history-service
+    container_name: history-service
+    restart: always
+    env_file:
+      - .env
+    environment:
+      SERVICE_PORT: 8003
+      DATABASE_URL: ${HISTORY_DB_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - net
+
+  # -----------------------
+  # Calendar Service
+  # -----------------------
+  calendar-service:
+    build: ./services/calendar-service
+    container_name: calendar-service
+    restart: always
+    env_file:
+      - .env
+    environment:
+      SERVICE_PORT: 8004
+      DATABASE_URL: ${CALENDAR_DB_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
+
+volumes:
+  produktifinData:
