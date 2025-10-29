@@ -1,1 +1,3 @@
-DROP SCHEMA IF EXISTS history CASCADE;
+DROP TABLE IF EXISTS daily_user_aggregates CASCADE;
+DROP TABLE IF EXISTS session_tasks CASCADE;
+DROP TABLE IF EXISTS sessions_archive CASCADE;

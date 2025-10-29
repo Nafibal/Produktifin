@@ -1,8 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE SCHEMA IF NOT EXISTS calendar;
-
-CREATE TABLE calendar.events (
+CREATE TABLE events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL,
     title TEXT NOT NULL,
@@ -15,5 +13,5 @@ CREATE TABLE calendar.events (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_events_user_date ON calendar.events(user_id, scheduled_start);
-CREATE INDEX idx_events_status ON calendar.events(status);
+CREATE INDEX idx_events_user_date ON events(user_id, scheduled_start);
+CREATE INDEX idx_events_status ON events(status);

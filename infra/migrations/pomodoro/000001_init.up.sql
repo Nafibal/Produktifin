@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE SCHEMA IF NOT EXISTS pomodoro;
 
-CREATE TABLE pomodoro.sessions (
+CREATE TABLE sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NULL,
     status TEXT NOT NULL CHECK (status IN ('running','paused','finished','planned')),
@@ -21,12 +21,12 @@ CREATE TABLE pomodoro.sessions (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ
 );
-CREATE INDEX idx_sessions_user_status ON pomodoro.sessions(user_id, status);
-CREATE INDEX idx_sessions_start_time ON pomodoro.sessions(start_time);
+CREATE INDEX idx_sessions_user_status ON sessions(user_id, status);
+CREATE INDEX idx_sessions_start_time ON sessions(start_time);
 
-CREATE TABLE pomodoro.tasks (
+CREATE TABLE tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    session_id UUID NOT NULL REFERENCES pomodoro.sessions(id) ON DELETE CASCADE,
+    session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT,
     is_done BOOL NOT NULL DEFAULT false,
@@ -34,4 +34,4 @@ CREATE TABLE pomodoro.tasks (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_tasks_session ON pomodoro.tasks(session_id);
+CREATE INDEX idx_tasks_session ON tasks(session_id);
